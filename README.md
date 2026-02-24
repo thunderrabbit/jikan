@@ -76,9 +76,10 @@ Full OpenAPI spec: [mg.robnugen.com/api/v1/openapi.yaml](https://mg.robnugen.com
 ## Local Testing
 
 ```bash
-# Smoke test — should start without error (Ctrl-C to stop)
-MG_API_KEY=sk_your_key_here python server.py
-
-# Interactive tool inspector
-mcp dev server.py
+# Interactive tool inspector (launches browser UI to call each tool)
+MG_API_KEY=sk_your_key_here mcp dev server.py
 ```
+
+Note: running `python server.py` directly in a terminal will show JSON parse errors —
+that's expected. The server speaks JSON-RPC over stdio and must be connected to an
+MCP client (Claude Desktop, the inspector above, etc.) to work correctly.
