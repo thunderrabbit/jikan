@@ -4,9 +4,9 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 
 # Fail fast if API key is missing
-MG_API_KEY = os.environ.get("MG_API_KEY")
-if not MG_API_KEY:
-    print("ERROR: MG_API_KEY environment variable is not set.", file=sys.stderr)
+JIKAN_API_KEY = os.environ.get("JIKAN_API_KEY")
+if not JIKAN_API_KEY:
+    print("ERROR: JIKAN_API_KEY environment variable is not set.", file=sys.stderr)
     print("Generate a key at https://mg.robnugen.com/settings/", file=sys.stderr)
     sys.exit(1)
 
@@ -15,7 +15,7 @@ MG_BASE_URL = os.environ.get("MG_BASE_URL", "https://mg.robnugen.com/api/v1")
 mcp = FastMCP("jikan")
 
 HEADERS = {
-    "X-API-Key": MG_API_KEY,
+    "X-API-Key": JIKAN_API_KEY,
     "Content-Type": "application/json",
 }
 

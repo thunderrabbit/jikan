@@ -54,7 +54,7 @@ Add this to your `claude_desktop_config.json`:
       "command": "uv",
       "args": ["--directory", "/path/to/jikan", "run", "server.py"],
       "env": {
-        "MG_API_KEY": "sk_your_key_here"
+        "JIKAN_API_KEY": "sk_your_key_here"
       }
     }
   }
@@ -77,7 +77,7 @@ Full OpenAPI spec: [mg.robnugen.com/api/v1/openapi.yaml](https://mg.robnugen.com
 
 ```bash
 # Interactive tool inspector (launches browser UI to call each tool)
-MG_API_KEY=sk_your_key_here mcp dev server.py
+JIKAN_API_KEY=sk_your_key_here mcp dev server.py
 ```
 
 Note: running `python server.py` directly in a terminal will show JSON parse errors —
