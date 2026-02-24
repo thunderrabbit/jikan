@@ -11,6 +11,7 @@ if not JIKAN_API_KEY:
     sys.exit(1)
 
 MG_BASE_URL = os.environ.get("MG_BASE_URL", "https://mg.robnugen.com/api/v1")
+JIKAN_DEFAULT_TZ = os.environ.get("JIKAN_DEFAULT_TZ", "UTC")
 
 mcp = FastMCP("jikan")
 
@@ -27,7 +28,7 @@ def _client() -> httpx.Client:
 @mcp.tool()
 def start_session(
     activity_id: int = 1,
-    timezone: str = "UTC",
+    timezone: str = JIKAN_DEFAULT_TZ,
     intended_sec: int = 0,
 ) -> dict:
     """Start a new behavioral session. Costs 1 credit.
@@ -39,7 +40,7 @@ def start_session(
     Args:
         activity_id: Activity type ID (default 1 = Meditation).
                      Use list_activities to see all options.
-        timezone: IANA timezone name, e.g. 'Asia/Tokyo' (default UTC).
+        timezone: IANA timezone name, e.g. 'Asia/Tokyo' (default reflects JIKAN_DEFAULT_TZ).
         intended_sec: Planned duration in seconds (default 0 = open-ended).
     """
     payload = {
