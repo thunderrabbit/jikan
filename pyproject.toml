@@ -1,9 +1,9 @@
 [project]
-name = "meiso-gambare-mcp"
+name = "jikan"
 version = "0.1.0"
 description = "MCP server for the Meiso Gambare behavioral session ledger API"
 requires-python = ">=3.10"
 dependencies = ["mcp[cli]", "httpx"]
 
 [project.scripts]
-meiso-gambare-mcp = "server:main"
+jikan = "server:main"

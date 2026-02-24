@@ -1,4 +1,4 @@
-# meiso-gambare-mcp
+# jikan
 
 MCP server wrapper for the [Meiso Gambare](https://mg.robnugen.com) behavioral session ledger API.
 
@@ -29,8 +29,8 @@ and "stop it" when done.
 ## Installation
 
 ```bash
-git clone https://github.com/thunderrabbit/meiso-gambare-mcp.git
-cd meiso-gambare-mcp
+git clone https://github.com/thunderrabbit/jikan.git
+cd jikan
 
 # with uv (recommended)
 uv venv mgvenv
@@ -50,9 +50,9 @@ Add this to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "meiso-gambare": {
+    "jikan": {
       "command": "uv",
-      "args": ["--directory", "/path/to/meiso-gambare-mcp", "run", "server.py"],
+      "args": ["--directory", "/path/to/jikan", "run", "server.py"],
       "env": {
         "MG_API_KEY": "sk_your_key_here"
       }
@@ -61,7 +61,7 @@ Add this to your `claude_desktop_config.json`:
 }
 ```
 
-Replace `/path/to/meiso-gambare-mcp` with the actual path where you cloned this repo,
+Replace `/path/to/jikan` with the actual path where you cloned this repo,
 and `sk_your_key_here` with your key from [mg.robnugen.com/settings/](https://mg.robnugen.com/settings/).
 
 The config file is usually at:

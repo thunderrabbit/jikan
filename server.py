@@ -12,7 +12,7 @@ if not MG_API_KEY:
 
 MG_BASE_URL = os.environ.get("MG_BASE_URL", "https://mg.robnugen.com/api/v1")
 
-mcp = FastMCP("meiso-gambare")
+mcp = FastMCP("jikan")
 
 HEADERS = {
     "X-API-Key": MG_API_KEY,
