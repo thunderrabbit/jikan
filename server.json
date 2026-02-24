@@ -1,0 +1,10 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["thunderrabbit"],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "description": "Persistent behavioral session ledger for AI agents. Track meditation, focus, exercise sessions. Server handles timestamps and duration math so agents don't have to.",
+      "version": "0.1.0"
+    }
+  }
+}
