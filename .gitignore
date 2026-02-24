@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+mgvenv/
+uv.lock
+dist/
+.env
