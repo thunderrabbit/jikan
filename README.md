@@ -2,15 +2,15 @@
 
 AI agents have a time problem.
 
-Every time you start a new conversation, the agent wakes up with no idea what happened before.
-More fundamentally: **LLMs have no internal clock.** They don't know what time it is, what day
-it is, or how long your current conversation has been running. From the model's perspective,
+Every time you start a new conversation, the agent wakes up with no idea when you last spoke
+because fundamentally: **LLMs have no internal clock.** They don't know what time it is, what day
+it is, or how long your current conversation has lasted. From the model's perspective,
 five minutes and five years are indistinguishable.
 
-This time-blindness creates a real problem for duration tracking. If you ask an agent to time your meditation
-session, it can't tell you how long you sat. If you ask whether you've been consistent lately,
-it has no way to know. It needs an external reference — something outside itself that actually
-*measured* the time.
+This time-blindness creates a real problem for tracking continuous work. If you ask an agent to log how much
+time you spent debugging a complex issue, it can't tell you how long you worked. If you ask whether you've
+been consistently putting in deep work lately, it has no way to know. It needs an external reference —
+something outside itself that actually *measured* the time.
 
 Jikan is that reference. The key design decision: **the server does the work agents are bad at.**
 
