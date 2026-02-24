@@ -69,6 +69,22 @@ The config file is usually at:
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+## A Note on AI and Time Estimates
+
+LLMs have no reliable sense of how long things take.
+
+Ask one to estimate a project and it might say "three weeks for a developer." That estimate is
+drawn from training data describing how long things *used to* take — before AI assistance
+collapsed the feedback loop.
+
+This entire MCP server (schema design, API integration, security review, packaging) was built
+in a single session with Claude. Not three weeks. Not three days.
+
+If you are planning a project and an AI gives you a time estimate, treat it as a pre-AI
+baseline. With AI support in the loop, the actual time is often an order of magnitude less.
+
+Track it. That's what Jikan is for.
+
 ## API Reference
 
 Full OpenAPI spec: [mg.robnugen.com/api/v1/openapi.yaml](https://mg.robnugen.com/api/v1/openapi.yaml)
