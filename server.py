@@ -86,6 +86,7 @@ def list_sessions(
     activity_id: int = 0,
     limit: int = 20,
     offset: int = 0,
+    is_active: int = -1,
 ) -> dict:
     """List completed and active sessions. Free (0 credits).
 
@@ -95,6 +96,7 @@ def list_sessions(
         activity_id: Filter by activity type ID (optional, 0 = no filter).
         limit: Number of results to return (default 20, max 50).
         offset: Pagination offset (default 0).
+        is_active: Filter by active status (1 = running, 0 = stopped, -1 = no filter).
     """
     params: dict = {"limit": limit, "offset": offset}
     if from_date:
@@ -103,6 +105,8 @@ def list_sessions(
         params["to"] = to_date
     if activity_id:
         params["activity_id"] = activity_id
+    if is_active in (0, 1):
+        params["is_active"] = is_active
     with _client() as client:
         response = client.get("/sessions", params=params)
     return response.json()
