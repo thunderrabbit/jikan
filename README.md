@@ -1,17 +1,5 @@
 # jikan
 
-MCP server wrapper for the [Meiso Gambare](https://mg.robnugen.com) activity session ledger API.
-
-Exposes 7 tools so Claude Desktop, Cursor, and any MCP-compatible client can log meditation,
-focus, and exercise sessions — without writing curl commands.
-
-The server handles timestamps and duration math. You just say "start a meditation session"
-and "stop the timer" when done.
-
----
-
-## Why This Exists
-
 AI agents have a time problem.
 
 Every time you start a new conversation, the agent wakes up with no idea what happened before.
@@ -19,7 +7,7 @@ More fundamentally: **LLMs have no internal clock.** They don't know what time i
 it is, or how long your current conversation has been running. From the model's perspective,
 five minutes and five years are indistinguishable.
 
-This creates a real problem for duration tracking. If you ask an agent to time your meditation
+This time-blindness creates a real problem for duration tracking. If you ask an agent to time your meditation
 session, it can't tell you how long you sat. If you ask whether you've been consistent lately,
 it has no way to know. It needs an external reference — something outside itself that actually
 *measured* the time.
@@ -29,10 +17,6 @@ Jikan is that reference. The key design decision: **the server does the work age
 - The server records the exact start time — the agent never needs to know it
 - The server computes elapsed duration — the agent never does date math
 - The server maintains the session ledger between conversations — the agent never manages state
-
----
-
-## A Note on AI and Time Estimates
 
 LLMs also have no reliable sense of how long *building things* takes.
 
@@ -47,6 +31,12 @@ If you are planning a project and an AI gives you a time estimate, treat it as a
 baseline. With AI support in the loop, the actual time is often an order of magnitude less.
 
 Track it. That's what Jikan is for.
+
+The server handles timestamps and duration math. You just say "start a meditation session"
+and "stop the timer" when done.
+
+Exposes 7 tools so Claude Desktop, Cursor, and any MCP-compatible client can log meditation,
+focus, and exercise sessions — without writing curl commands.
 
 ---
 
