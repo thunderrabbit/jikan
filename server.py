@@ -178,6 +178,19 @@ def get_emotion_vocab() -> list:
 
 
 @mcp.tool()
+def rename_emotion_vocab(my_id: int, state: str) -> dict:
+    """Rename an existing vocab entry. Preserves the my_id and all event associations.
+
+    Args:
+        my_id: The vocab entry's numeric handle
+        state: The new label for this emotional state
+    """
+    with _client() as client:
+        response = client.patch("/emotions/vocab", json={"my_id": my_id, "state": state})
+    return response.json()
+
+
+@mcp.tool()
 def log_emotion_event(
     event_type: str,
     content: str,
