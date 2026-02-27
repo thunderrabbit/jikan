@@ -149,6 +149,144 @@ def create_activity(activity_name: str, description: str = "") -> dict:
     return response.json()
 
 
+# ── Emotional Interaction Ledger tools ────────────────────────────────────────
+
+
+@mcp.tool()
+def post_emotion_vocab(state: str) -> dict:
+    """Add a new state label to the agent's private vocabulary.
+    Returns my_id: the agent's private numeric handle for this state.
+    Call when the state is not yet in the loaded vocab.
+
+    Args:
+        state: Label for this emotional state (any string, e.g. 'frustration_at_jargon')
+    """
+    with _client() as client:
+        response = client.post("/emotions/vocab", json={"state": state})
+    return response.json()
+
+
+@mcp.tool()
+def get_emotion_vocab() -> list:
+    """Load the agent's full private vocabulary. Call once at session start.
+    Returns a list of {my_id, state} pairs. Hold in context for the session.
+    Returns [] on a fresh install.
+    """
+    with _client() as client:
+        response = client.get("/emotions/vocab")
+    return response.json()
+
+
+@mcp.tool()
+def log_emotion_event(
+    event_type: str,
+    content: str,
+    my_id: int | None = None,
+) -> dict:
+    """Log an interaction event to the emotional ledger.
+
+    Args:
+        event_type: 'user_reaction', 'user_input', or 'agent_action'
+        content: Specific honest observation about what happened
+        my_id: Vocab my_id for this state (omit if event has no state tag)
+    """
+    payload: dict = {"event_type": event_type, "content": content}
+    if my_id is not None:
+        payload["my_id"] = my_id
+    with _client() as client:
+        response = client.post("/emotions/events", json=payload)
+    return response.json()
+
+
+@mcp.tool()
+def get_emotion_events(
+    my_id: int | None = None,
+    session_id: int | None = None,
+    from_date: str = "",
+    to_date: str = "",
+    event_type: str = "",
+    limit: int = 50,
+) -> list:
+    """Query past interaction events. At least one of my_id, session_id, or from_date required.
+
+    Args:
+        my_id: Filter by emotional state (agent's private vocab ID)
+        session_id: Filter to a specific session
+        from_date: ISO datetime start of range
+        to_date: ISO datetime end of range
+        event_type: 'agent_action', 'user_input', or 'user_reaction'
+        limit: Max results (default 50, max 200)
+    """
+    params: dict = {"limit": limit}
+    if my_id is not None:
+        params["my_id"] = my_id
+    if session_id is not None:
+        params["session_id"] = session_id
+    if from_date:
+        params["from"] = from_date
+    if to_date:
+        params["to"] = to_date
+    if event_type:
+        params["event_type"] = event_type
+    with _client() as client:
+        response = client.get("/emotions/events", params=params)
+    return response.json()
+
+
+@mcp.tool()
+def get_emotion_sessions(
+    from_date: str = "",
+    to_date: str = "",
+    limit: int = 20,
+) -> list:
+    """List past interaction sessions with duration and event count. No decryption required.
+
+    Args:
+        from_date: ISO datetime start of range
+        to_date: ISO datetime end of range
+        limit: Max results (default 20, max 100)
+    """
+    params: dict = {"limit": limit}
+    if from_date:
+        params["from"] = from_date
+    if to_date:
+        params["to"] = to_date
+    with _client() as client:
+        response = client.get("/emotions/sessions", params=params)
+    return response.json()
+
+
+@mcp.tool()
+def delete_emotion_event(event_id: int) -> dict:
+    """Delete a single event by event_id. Returns {"deleted": 1} or {"deleted": 0}.
+    Never returns 404 — avoids leaking whether an ID exists.
+    """
+    with _client() as client:
+        response = client.request("DELETE", "/emotions/events", json={"event_id": event_id})
+    return response.json()
+
+
+@mcp.tool()
+def delete_emotion_vocab(my_id: int) -> dict:
+    """Delete a vocab entry by my_id. Associated events are preserved but lose
+    their state tag (mifmus_id set to NULL). Returns {"deleted": 1, "events_untagged": N}.
+    """
+    with _client() as client:
+        response = client.request("DELETE", "/emotions/vocab", json={"my_id": my_id})
+    return response.json()
+
+
+@mcp.tool()
+def delete_emotion_everything() -> dict:
+    """Wipe ALL emotional data for this API key: all events, sessions, and vocab.
+    This is irreversible. The confirmation string is handled automatically.
+    Returns counts of deleted rows.
+    """
+    with _client() as client:
+        response = client.request("DELETE", "/emotions/everything", json={"confirm": "delete everything"})
+    return response.json()
+
+
 def main():
     mcp.run(transport="stdio")
 
