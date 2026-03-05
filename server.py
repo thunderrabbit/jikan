@@ -300,6 +300,179 @@ def delete_emotion_everything() -> dict:
     return response.json()
 
 
+# ── Todo tools ────────────────────────────────────────────────────────────────
+
+
+@mcp.tool()
+def list_todos(timezone: str = JIKAN_DEFAULT_TZ) -> dict:
+    """Get today's todos based on recurrence rules and timezone. Free (0 credits).
+
+    Returns todos filtered by day-of-week, day-of-month, due date, and
+    days-between rules. Includes completion status for today.
+
+    Args:
+        timezone: IANA timezone name, e.g. 'Asia/Tokyo'
+    """
+    with _client() as client:
+        response = client.get("/todos/list", params={"timezone": timezone})
+    return response.json()
+
+
+@mcp.tool()
+def complete_todo(
+    todo_id: int,
+    nth: int = 1,
+    timezone: str = JIKAN_DEFAULT_TZ,
+) -> dict:
+    """Mark a todo as completed for today. Free (0 credits).
+
+    Args:
+        todo_id: The todo to complete
+        nth: Which occurrence (1 for first, 2 for second, etc.)
+        timezone: IANA timezone name
+    """
+    with _client() as client:
+        response = client.post("/todos/complete", json={
+            "todo_id": todo_id, "nth": nth, "timezone": timezone
+        })
+    return response.json()
+
+
+@mcp.tool()
+def uncomplete_todo(
+    todo_id: int,
+    nth: int = 1,
+    timezone: str = JIKAN_DEFAULT_TZ,
+) -> dict:
+    """Remove a todo completion for today. Free (0 credits).
+
+    Args:
+        todo_id: The todo to uncomplete
+        nth: Which occurrence to remove
+        timezone: IANA timezone name
+    """
+    with _client() as client:
+        response = client.post("/todos/uncomplete", json={
+            "todo_id": todo_id, "nth": nth, "timezone": timezone
+        })
+    return response.json()
+
+
+@mcp.tool()
+def create_todo(
+    title: str,
+    do_days: str = "",
+    do_dates: str = "",
+    do_every_n_days: int | None = None,
+    due_date: str = "",
+    do_time: str = "",
+    target_count: int = 1,
+    activity_id: int | None = None,
+    description: str = "",
+) -> dict:
+    """Create a new todo. Free (0 credits).
+
+    Args:
+        title: Todo title
+        do_days: Comma-separated days of week (e.g. 'Mon,Wed,Fri')
+        do_dates: Comma-separated dates of month (e.g. '1,15,30')
+        do_every_n_days: Repeat every N days after completion (1-365)
+        due_date: One-time due date (YYYY-MM-DD)
+        do_time: Time of day (HH:MM)
+        target_count: How many times per day (default 1)
+        activity_id: Link to an activity for timed todos
+        description: Optional description
+    """
+    payload: dict = {"title": title}
+    if do_days:
+        payload["do_days"] = do_days
+    if do_dates:
+        payload["do_dates"] = do_dates
+    if do_every_n_days is not None:
+        payload["do_every_n_days"] = do_every_n_days
+    if due_date:
+        payload["due_date"] = due_date
+    if do_time:
+        payload["do_time"] = do_time
+    if target_count != 1:
+        payload["target_count"] = target_count
+    if activity_id is not None:
+        payload["activity_id"] = activity_id
+    if description:
+        payload["description"] = description
+    with _client() as client:
+        response = client.post("/todos/create", json=payload)
+    return response.json()
+
+
+@mcp.tool()
+def update_todo(todo_id: int, field: str, value: str) -> dict:
+    """Update a single field on a todo. Free (0 credits).
+
+    Args:
+        todo_id: The todo to update
+        field: Field name (title, do_time, due_date, target_duration_seconds, do_every_n_days)
+        value: New value for the field
+    """
+    with _client() as client:
+        response = client.patch("/todos/update", json={
+            "todo_id": todo_id, "field": field, "value": value
+        })
+    return response.json()
+
+
+@mcp.tool()
+def archive_todo(todo_id: int) -> dict:
+    """Soft-delete a todo (sets is_active = 0). Free (0 credits).
+
+    Args:
+        todo_id: The todo to archive
+    """
+    with _client() as client:
+        response = client.request("DELETE", "/todos/archive", json={"todo_id": todo_id})
+    return response.json()
+
+
+@mcp.tool()
+def complete_todo_with_session(
+    todo_id: int,
+    ak_id: int,
+    duration_seconds: int | None = None,
+    timezone: str = JIKAN_DEFAULT_TZ,
+) -> dict:
+    """Complete a timed todo and link it to an activity session. Free (0 credits).
+
+    Automatically determines the nth completion for today.
+
+    Args:
+        todo_id: The todo to complete
+        ak_id: The activity_kai session ID to link
+        duration_seconds: Override duration (otherwise uses session duration)
+        timezone: IANA timezone name
+    """
+    payload: dict = {"todo_id": todo_id, "ak_id": ak_id, "timezone": timezone}
+    if duration_seconds is not None:
+        payload["duration_seconds"] = duration_seconds
+    with _client() as client:
+        response = client.post("/todos/complete-with-session", json=payload)
+    return response.json()
+
+
+@mcp.tool()
+def todo_history(limit: int = 20, offset: int = 0) -> dict:
+    """List fully completed todos with pagination. Free (0 credits).
+
+    Args:
+        limit: Max results (default 20, max 50)
+        offset: Pagination offset
+    """
+    with _client() as client:
+        response = client.get("/todos/history", params={
+            "limit": limit, "offset": offset
+        })
+    return response.json()
+
+
 def main():
     mcp.run(transport="stdio")
 
