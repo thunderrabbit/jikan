@@ -69,6 +69,20 @@ def stop_session(ak_id: int) -> dict:
 
 
 @mcp.tool()
+def delete_session(ak_id: int) -> dict:
+    """Delete a session. Free (0 credits).
+
+    Args:
+        ak_id: The session ID to delete.
+    """
+    with _client() as client:
+        response = client.delete(f"/sessions/{ak_id}")
+    if response.status_code == 204:
+        return {"deleted": True, "ak_id": ak_id}
+    return response.json()
+
+
+@mcp.tool()
 def check_session(ak_id: int) -> dict:
     """Get details for a single session, including elapsed_sec if active. Free (0 credits).
 
@@ -427,7 +441,7 @@ def update_todo(todo_id: int, field: str, value: str) -> dict:
 
     Args:
         todo_id: The todo to update
-        field: Field name (title, do_time, due_date, target_duration_seconds, do_every_n_days)
+        field: Field name (title, do_time, due_date, target_duration_seconds, do_every_n_days, is_timer, is_counter)
         value: New value for the field
     """
     with _client() as client:
@@ -485,6 +499,99 @@ def todo_history(limit: int = 20, offset: int = 0) -> dict:
     with _client() as client:
         response = client.get("/todos/history", params={
             "limit": limit, "offset": offset
+        })
+    return response.json()
+
+
+# ── Agent Inbox tools ─────────────────────────────────────────────────────────
+
+
+@mcp.tool()
+def list_inbox(
+    status: str = "",
+    limit: int = 50,
+    offset: int = 0,
+) -> dict:
+    """List messages in the agent inbox. Free (0 credits).
+
+    Call this at session start to check for pending instructions from the user.
+
+    Args:
+        status: Filter by status: 'pending', 'seen', 'done', or '' for all.
+        limit: Max results (default 50, max 100).
+        offset: Pagination offset.
+    """
+    params: dict = {"limit": limit, "offset": offset}
+    if status:
+        params["status"] = status
+    with _client() as client:
+        response = client.get("/inbox/list", params=params)
+    return response.json()
+
+
+@mcp.tool()
+def send_inbox(message: str, priority: str = "normal") -> dict:
+    """Send a message to the agent inbox. Free (0 credits).
+
+    Use this when the user wants to leave a note for a future session,
+    or when you need to save an instruction for later processing.
+
+    Args:
+        message: The message text.
+        priority: 'low', 'normal', or 'high' (default 'normal').
+    """
+    with _client() as client:
+        response = client.post("/inbox/send", json={
+            "message": message, "priority": priority
+        })
+    return response.json()
+
+
+@mcp.tool()
+def mark_inbox_seen(message_id: int) -> dict:
+    """Mark an inbox message as seen. Free (0 credits).
+
+    Call this after reading a message to acknowledge you've seen it.
+
+    Args:
+        message_id: The message to mark as seen.
+    """
+    with _client() as client:
+        response = client.patch("/inbox/mark-seen", json={
+            "message_id": message_id
+        })
+    return response.json()
+
+
+@mcp.tool()
+def mark_inbox_done(message_id: int, response: str = "") -> dict:
+    """Mark an inbox message as done, with an optional response. Free (0 credits).
+
+    Call this after you've acted on a message. The response is visible
+    to the user on the web interface.
+
+    Args:
+        message_id: The message to mark as done.
+        response: Optional note about what you did (shown to user).
+    """
+    payload: dict = {"message_id": message_id}
+    if response:
+        payload["response"] = response
+    with _client() as client:
+        resp = client.patch("/inbox/mark-done", json=payload)
+    return resp.json()
+
+
+@mcp.tool()
+def delete_inbox(message_id: int) -> dict:
+    """Delete an inbox message. Free (0 credits).
+
+    Args:
+        message_id: The message to delete.
+    """
+    with _client() as client:
+        response = client.request("DELETE", "/inbox/delete", json={
+            "message_id": message_id
         })
     return response.json()
 
