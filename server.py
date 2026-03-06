@@ -583,6 +583,25 @@ def mark_inbox_done(message_id: int, response: str = "") -> dict:
 
 
 @mcp.tool()
+def edit_inbox(message_id: int, message: str = "", priority: str = "") -> dict:
+    """Edit an inbox message's text and/or priority. Free (0 credits).
+
+    Args:
+        message_id: The message to edit.
+        message: New message text (omit to keep current).
+        priority: New priority: 'low', 'normal', or 'high' (omit to keep current).
+    """
+    payload: dict = {"message_id": message_id}
+    if message:
+        payload["message"] = message
+    if priority:
+        payload["priority"] = priority
+    with _client() as client:
+        response = client.patch("/inbox/edit", json=payload)
+    return response.json()
+
+
+@mcp.tool()
 def archive_inbox(message_id: int) -> dict:
     """Archive an inbox message (soft-hide). Free (0 credits).
 
