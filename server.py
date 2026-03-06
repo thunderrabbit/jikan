@@ -583,6 +583,22 @@ def mark_inbox_done(message_id: int, response: str = "") -> dict:
 
 
 @mcp.tool()
+def archive_inbox(message_id: int) -> dict:
+    """Archive an inbox message (soft-hide). Free (0 credits).
+
+    Use this instead of delete to preserve history.
+
+    Args:
+        message_id: The message to archive.
+    """
+    with _client() as client:
+        response = client.patch("/inbox/archive", json={
+            "message_id": message_id
+        })
+    return response.json()
+
+
+@mcp.tool()
 def delete_inbox(message_id: int) -> dict:
     """Delete an inbox message. Free (0 credits).
 
