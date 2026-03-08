@@ -511,6 +511,7 @@ def list_inbox(
     status: str = "",
     limit: int = 50,
     offset: int = 0,
+    include_future: bool = True,
 ) -> dict:
     """List messages in the agent inbox. Free (0 credits).
 
@@ -520,10 +521,13 @@ def list_inbox(
         status: Filter by status: 'pending', 'seen', 'done', or '' for all.
         limit: Max results (default 50, max 100).
         offset: Pagination offset.
+        include_future: Include messages with a future show_date (default True).
     """
     params: dict = {"limit": limit, "offset": offset}
     if status:
         params["status"] = status
+    if include_future:
+        params["include_future"] = 1
     with _client() as client:
         response = client.get("/inbox/list", params=params)
     return response.json()
