@@ -226,14 +226,21 @@ def log_emotion_event(
 
 
 @mcp.tool()
-def patch_emotion_event(event_id: int, my_id: int | None = None) -> dict:
-    """Update an existing event's tag without changing its session or sequence.
+def patch_emotion_event(
+    event_id: int,
+    content: str | None = None,
+    my_id: int | None = None,
+) -> dict:
+    """Update an existing event's content and/or tag. Only provided fields are changed.
 
     Args:
         event_id: The event ID to update
-        my_id: Vocab my_id to tag with (omit or None to untag)
+        content: New content text (omit to leave unchanged)
+        my_id: Vocab my_id to tag with (omit to leave unchanged)
     """
     payload: dict = {"event_id": event_id}
+    if content is not None:
+        payload["content"] = content
     if my_id is not None:
         payload["my_id"] = my_id
     with _client() as client:
