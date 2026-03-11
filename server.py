@@ -54,6 +54,54 @@ def start_session(
 
 
 @mcp.tool()
+def create_past_session(
+    activity_id: int,
+    start_time: str,
+    end_time: str,
+    timezone: str = JIKAN_DEFAULT_TZ,
+) -> dict:
+    """Create a completed session retroactively with custom start/end times. Costs 1 credit.
+
+    Use this when the user forgot to start a timer, or wants to log a past
+    activity. The session is created already stopped with actual_sec computed
+    from the time difference.
+
+    Args:
+        activity_id: Activity type ID. Use list_activities to see all options.
+        start_time: When the session started. Accepts ISO format (e.g. '2025-03-11T14:00:00')
+                    or 'HH:MM' for today in the given timezone.
+        end_time: When the session ended. Same formats as start_time.
+        timezone: IANA timezone name, e.g. 'Asia/Tokyo' (default reflects JIKAN_DEFAULT_TZ).
+    """
+    from datetime import datetime, date as date_cls
+
+    def _expand_time(raw: str, tz: str) -> str:
+        """If raw looks like HH:MM, expand to today's ISO datetime in tz."""
+        raw = raw.strip()
+        if len(raw) <= 5 and ":" in raw and "T" not in raw and "-" not in raw:
+            try:
+                from zoneinfo import ZoneInfo
+            except ImportError:
+                from backports.zoneinfo import ZoneInfo
+            today = datetime.now(ZoneInfo(tz)).date()
+            return f"{today}T{raw}:00"
+        return raw
+
+    start_time = _expand_time(start_time, timezone)
+    end_time = _expand_time(end_time, timezone)
+
+    payload = {
+        "activity_id": activity_id,
+        "start_time": start_time,
+        "end_time": end_time,
+        "timezone": timezone,
+    }
+    with _client() as client:
+        response = client.post("/sessions/backfill", json=payload)
+    return response.json()
+
+
+@mcp.tool()
 def stop_session(ak_id: int) -> dict:
     """Stop an active session. Free (0 credits).
 
