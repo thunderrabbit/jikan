@@ -496,7 +496,7 @@ def update_todo(todo_id: int, field: str, value: str) -> dict:
 
     Args:
         todo_id: The todo to update
-        field: Field name (title, do_time, due_date, target_duration_seconds, do_every_n_days, is_timer, is_counter)
+        field: Field name (title, do_time, due_date, target_duration_seconds, do_every_n_days, is_timer, is_counter, activity_id)
         value: New value for the field
     """
     with _client() as client:
