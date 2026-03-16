@@ -519,6 +519,18 @@ def archive_todo(todo_id: int) -> dict:
 
 
 @mcp.tool()
+def delete_todo(todo_id: int) -> dict:
+    """Hard-delete a todo permanently (removes from database). Free (0 credits).
+
+    Args:
+        todo_id: The todo to permanently delete
+    """
+    with _client() as client:
+        response = client.request("DELETE", "/todos/delete", json={"todo_id": todo_id})
+    return response.json()
+
+
+@mcp.tool()
 def complete_todo_with_session(
     todo_id: int,
     ak_id: int,
