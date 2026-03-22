@@ -461,7 +461,7 @@ def create_todo(
         title: Todo title
         do_days: Comma-separated days of week (e.g. 'Mon,Wed,Fri')
         do_dates: Comma-separated dates of month (e.g. '1,15,30')
-        do_every_n_days: Repeat every N days after completion (1-365)
+        do_every_n_days: Repeat every N days after completion (1-65535)
         due_date: One-time due date (YYYY-MM-DD)
         do_time: Time of day (HH:MM)
         target_count: How many times per day (default 1)
@@ -630,6 +630,23 @@ def mark_inbox_seen(message_id: int) -> dict:
     with _client() as client:
         response = client.patch("/inbox/mark-seen", json={
             "message_id": message_id
+        })
+    return response.json()
+
+
+@mcp.tool()
+def mark_inbox_seen_bulk(message_ids: list[int]) -> dict:
+    """Mark multiple inbox messages as seen in one call. Free (0 credits).
+
+    Use this to acknowledge multiple messages at once instead of calling
+    mark_inbox_seen repeatedly.
+
+    Args:
+        message_ids: List of message IDs to mark as seen.
+    """
+    with _client() as client:
+        response = client.patch("/inbox/mark-seen-bulk", json={
+            "message_ids": message_ids
         })
     return response.json()
 
