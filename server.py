@@ -601,7 +601,7 @@ def list_inbox(
 
 
 @mcp.tool()
-def send_inbox(message: str, priority: str = "normal") -> dict:
+def send_inbox(message: str, priority: str = "normal", sender_timezone: str = "") -> dict:
     """Send a message to the agent inbox. Free (0 credits).
 
     Use this when the user wants to leave a note for a future session,
@@ -610,11 +610,20 @@ def send_inbox(message: str, priority: str = "normal") -> dict:
     Args:
         message: The message text.
         priority: 'low', 'normal', or 'high' (default 'normal').
+        sender_timezone: IANA timezone string (e.g. 'Australia/Adelaide'). Auto-detected if empty.
     """
+    import time
+    if not sender_timezone:
+        try:
+            import tzlocal
+            sender_timezone = str(tzlocal.get_localzone())
+        except Exception:
+            sender_timezone = time.tzname[0]
+    payload = {"message": message, "priority": priority}
+    if sender_timezone:
+        payload["sender_timezone"] = sender_timezone
     with _client() as client:
-        response = client.post("/inbox/send", json={
-            "message": message, "priority": priority
-        })
+        response = client.post("/inbox/send", json=payload)
     return response.json()
 
 
