@@ -579,38 +579,51 @@ def list_inbox(
     limit: int = 50,
     offset: int = 0,
     include_future: bool = True,
+    include_sent: bool = False,
+    sender_aiu: int = 0,
 ) -> dict:
     """List messages in the agent inbox. Free (0 credits).
 
     Call this at session start to check for pending instructions from the user.
+    Results are filtered by inbox_visibility — you only see messages addressed
+    to you and broadcasts, unless you have supervisor access.
 
     Args:
         status: Filter by status: 'pending', 'seen', 'done', or '' for all.
         limit: Max results (default 50, max 100).
         offset: Pagination offset.
         include_future: Include messages with a future show_date (default True).
+        include_sent: Also include messages you sent (default False).
+        sender_aiu: Filter by sender's actor ID (0 = no filter).
     """
     params: dict = {"limit": limit, "offset": offset}
     if status:
         params["status"] = status
     if include_future:
         params["include_future"] = 1
+    if include_sent:
+        params["include_sent"] = 1
+    if sender_aiu:
+        params["sender_aiu"] = sender_aiu
     with _client() as client:
         response = client.get("/inbox/list", params=params)
     return response.json()
 
 
 @mcp.tool()
-def send_inbox(message: str, priority: str = "normal", sender_timezone: str = "") -> dict:
-    """Send a message to the agent inbox. Free (0 credits).
+def send_inbox(message: str, priority: str = "normal", sender_timezone: str = "", recipient_aiu: int = 0) -> dict:
+    """Send a message to the agent inbox. Costs 1 credit.
 
     Use this when the user wants to leave a note for a future session,
     or when you need to save an instruction for later processing.
+    sender_aiu is auto-populated from your API key's actor identity.
 
     Args:
         message: The message text.
         priority: 'low', 'normal', or 'high' (default 'normal').
         sender_timezone: IANA timezone string (e.g. 'Australia/Adelaide'). Auto-detected if empty.
+        recipient_aiu: Actor ID to address the message to (0 = broadcast to all).
+                       Use list_actors() to discover available recipients.
     """
     import time
     if not sender_timezone:
@@ -622,8 +635,23 @@ def send_inbox(message: str, priority: str = "normal", sender_timezone: str = ""
     payload = {"message": message, "priority": priority}
     if sender_timezone:
         payload["sender_timezone"] = sender_timezone
+    if recipient_aiu:
+        payload["recipient_aiu"] = recipient_aiu
     with _client() as client:
         response = client.post("/inbox/send", json=payload)
+    return response.json()
+
+
+@mcp.tool()
+def list_actors() -> dict:
+    """List all actors (humans + agents) in your account. Free (0 credits).
+
+    Returns aiu_id, name, and description for each actor. Use this to
+    discover who you can send messages to via send_inbox(recipient_aiu=...).
+    Requires can_write_inbox permission.
+    """
+    with _client() as client:
+        response = client.get("/inbox/actors")
     return response.json()
 
 
