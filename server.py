@@ -708,19 +708,23 @@ def mark_inbox_done(message_id: int, response: str = "") -> dict:
 
 
 @mcp.tool()
-def edit_inbox(message_id: int, message: str = "", priority: str = "") -> dict:
-    """Edit an inbox message's text and/or priority. Free (0 credits).
+def edit_inbox(message_id: int, message: str = "", priority: str = "", recipient_aiu: int = 0) -> dict:
+    """Edit an inbox message's text, priority, and/or recipient. Free (0 credits).
 
     Args:
         message_id: The message to edit.
         message: New message text (omit to keep current).
         priority: New priority: 'low', 'normal', or 'high' (omit to keep current).
+        recipient_aiu: New recipient actor ID (0 = keep current).
+                       Use list_actors() to discover available recipients.
     """
     payload: dict = {"message_id": message_id}
     if message:
         payload["message"] = message
     if priority:
         payload["priority"] = priority
+    if recipient_aiu:
+        payload["recipient_aiu"] = recipient_aiu
     with _client() as client:
         response = client.patch("/inbox/edit", json=payload)
     return response.json()
